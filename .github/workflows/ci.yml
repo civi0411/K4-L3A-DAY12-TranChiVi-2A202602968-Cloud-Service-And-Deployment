@@ -49,6 +49,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: Production
+      url: https://day12-agent-ykj6.onrender.com
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -57,4 +60,4 @@ jobs:
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          echo "Deploying with token from secrets.DEPLOY_TOKEN"
+          echo "Deploying to https://day12-agent-ykj6.onrender.com"
