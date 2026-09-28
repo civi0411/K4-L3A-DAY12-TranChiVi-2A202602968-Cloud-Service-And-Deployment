@@ -18,8 +18,8 @@
 
 | Mục | Nội dung |
 |-----|----------|
-| Public URL | https://k4-l3a-tranchivi-2a202602968.up.railway.app |
-| Platform | Railway |
+| Public URL | https://day12-agent-ykj6.onrender.com |
+| Platform | Render |
 | Ngày deploy | 2026-09-28 |
 
 ## Biến Môi Trường Đã Set Trên Cloud
@@ -29,8 +29,8 @@ Ghi tên biến và **nguồn giá trị**, không ghi giá trị:
 | Biến | Đã set | Ghi chú |
 |------|--------|---------|
 | `PORT` | ✅ | platform tự gán |
-| `AGENT_API_KEY` | ✅ | đặt trong dashboard, không nằm trong repo |
-| `REDIS_URL` | ✅ | Redis add-on của platform (redis://default:***@redis.railway.internal:6379) |
+| `AGENT_API_KEY` | ✅ | đặt trong dashboard của Render (sync: false) |
+| `REDIS_URL` | ✅ | liên kết tự động từ service day12-redis trên Render qua render.yaml |
 | `RATE_LIMIT_PER_MINUTE` | ✅ | 10 |
 | `MONTHLY_BUDGET_USD` | ✅ | 10.0 |
 | `LOG_LEVEL` | ✅ | INFO |
@@ -41,18 +41,18 @@ Thay `<URL>` bằng Public URL ở trên:
 
 ```bash
 # 1. Liveness — mong đợi 200 {"status":"ok"}
-curl -i https://k4-l3a-tranchivi-2a202602968.up.railway.app/health
+curl -i https://day12-agent-ykj6.onrender.com/health
 
 # 2. Readiness — mong đợi 200 {"status":"ready"} (đã nối được Redis)
-curl -i https://k4-l3a-tranchivi-2a202602968.up.railway.app/ready
+curl -i https://day12-agent-ykj6.onrender.com/ready
 
 # 3. Không có API key — mong đợi 401
-curl -i -X POST https://k4-l3a-tranchivi-2a202602968.up.railway.app/ask \
+curl -i -X POST https://day12-agent-ykj6.onrender.com/ask \
   -H "Content-Type: application/json" \
   -d '{"question":"Hello"}'
 
 # 4. Có API key — mong đợi 200 kèm câu trả lời
-curl -i -X POST https://k4-l3a-tranchivi-2a202602968.up.railway.app/ask \
+curl -i -X POST https://day12-agent-ykj6.onrender.com/ask \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $AGENT_API_KEY" \
   -H "X-User-Id: sv-test" \
@@ -60,7 +60,7 @@ curl -i -X POST https://k4-l3a-tranchivi-2a202602968.up.railway.app/ask \
 
 # 5. Rate limit — gọi 15 lần, những lần cuối phải trả 429
 for i in $(seq 1 15); do
-  curl -s -o /dev/null -w "%{http_code} " -X POST https://k4-l3a-tranchivi-2a202602968.up.railway.app/ask \
+  curl -s -o /dev/null -w "%{http_code} " -X POST https://day12-agent-ykj6.onrender.com/ask \
     -H "Content-Type: application/json" \
     -H "X-API-Key: $AGENT_API_KEY" \
     -H "X-User-Id: sv-test" \
@@ -70,29 +70,43 @@ done; echo
 
 ## Kết Quả Chạy Thật
 
-Output của các lệnh trên:
+Output của các lệnh trên gọi trực tiếp vào Render:
 
 ```
 # 1. Health check:
-HTTP/1.1 200 OK
+HTTP/2 200 
 content-type: application/json
+server: cloudflare
+x-render-origin-server: uvicorn
+
 {"status":"ok","service":"day12-agent","version":"1.0.0"}
 
 # 2. Readiness probe:
-HTTP/1.1 200 OK
+HTTP/2 200 
 content-type: application/json
+server: cloudflare
+x-render-origin-server: uvicorn
+
 {"status":"ready","redis":true}
 
 # 3. Unauthorized request:
-HTTP/1.1 401 Unauthorized
+HTTP/2 401 
+content-type: application/json
+server: cloudflare
+x-render-origin-server: uvicorn
+
 {"detail":"invalid or missing API key"}
 
 # 4. Authorized request:
-HTTP/1.1 200 OK
-{"answer":"Với Deploy là gì, cách làm phổ biến trong production là đặt một lớp gateway phía trước để lo authentication, rate limiting và bảo vệ chi phí.","user_id":"sv-test","history_length":0,"cost_usd":0.00012,"tokens":{"in":15,"out":42}}
+HTTP/2 200 
+content-type: application/json
+server: cloudflare
+x-render-origin-server: uvicorn
+
+{"answer":"Câu hỏi hay. Deploy là gì thường được giải quyết bằng cách chuẩn hóa môi trường chạy: cùng một image chạy giống nhau ở laptop và trên cloud.","user_id":"sv-test","history_length":0,"cost_usd":2.145e-05,"tokens":{"in":3,"out":35}}
 
 # 5. Rate limit 15 requests:
-200 200 200 200 200 200 200 200 200 200 429 429 429 429 429
+200 200 200 200 200 200 200 200 429 429 429 429 429 429 429
 ```
 
 ## Ảnh Chụp Màn Hình
