@@ -70,6 +70,17 @@ class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
 
 
+@app.get("/")
+def root():
+    return {
+        "service": SERVICE_NAME,
+        "version": SERVICE_VERSION,
+        "health": "/health",
+        "ready": "/ready",
+        "docs": "/docs",
+    }
+
+
 # ─────────────────────────────────────────────────────────────
 # Health & readiness
 # ─────────────────────────────────────────────────────────────
