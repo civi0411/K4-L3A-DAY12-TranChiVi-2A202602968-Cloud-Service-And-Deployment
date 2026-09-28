@@ -2,6 +2,10 @@
 
 ![CI](https://github.com/civi0411/K4-L3A-TranChiVi-2A202602968-Cloud-Service-And-Deployment/actions/workflows/ci.yml/badge.svg)
 
+> 🚀 **Live Production Service:** [https://day12-agent-ykj6.onrender.com](https://day12-agent-ykj6.onrender.com)  
+> 📖 **Interactive Swagger UI (Dashboard):** [https://day12-agent-ykj6.onrender.com/docs](https://day12-agent-ykj6.onrender.com/docs)  
+> 🏥 **Health Check:** [https://day12-agent-ykj6.onrender.com/health](https://day12-agent-ykj6.onrender.com/health) | 🚦 **Ready Check:** [https://day12-agent-ykj6.onrender.com/ready](https://day12-agent-ykj6.onrender.com/ready)
+
 Đưa một AI agent từ `localhost:8000` lên một địa chỉ công khai mà người khác
 gọi được, có bảo mật, có giới hạn chi phí, và không sập khi bạn deploy bản mới.
 
